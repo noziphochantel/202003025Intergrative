@@ -48,11 +48,18 @@ public class ProducerConsumer {
 
         @Override
         public void run() {
+            int intArray[] =  {70,80,90};
+            Random rand = new Random();
+            
             for (int i = 1; i <= 10; i++) {
                 try {
+                    int[] marksArr = new int[3];
+                    for(int x = 0; x < marksArr.length; x++)
+                        marksArr[x] = rand.nextInt(100);
+                    
                     empty.acquire();
                     // Generate student information
-                    ITStudent student = new ITStudent("Student " + i, 123456789 + i, "Computer Science", new int[] { 70, 80, 90 }, new int[] { 50, 52, 56 });
+                    ITStudent student = new ITStudent("Student " + i, 9876543 + i, "Computer Science",intArray , marksArr);
                     // Wrap student information into XML format
                     String xml = "<student>" + student.toXML() + "</student>";
                     
@@ -117,7 +124,7 @@ public class ProducerConsumer {
                     // Remove file name from buffer
                     int fileNumber = empty.availablePermits();
                     // Read XML file from directory
-                    String xml = readXMLFile(fileNumber);
+                    String xml = readXMLFile(i);
                     
                     //xml = readXMLFile(fileNumber);
                     // Unwrap XML file and gather student information into ITStudent class
@@ -126,7 +133,7 @@ public class ProducerConsumer {
                     //int average = student.getAverage();
                     //String passFail = average >= 50 ? "Passed" : "Failed";
                     // Print student information
-                    System.out.println(student.getName() + ", " + student.getStudentId() + ", " + student.getProgramme() + ", " + student.getMarks()); //+ ", " + average + ", " + passFail);
+                    System.out.println(student.toString());
                 
                } catch (InterruptedException e) {
                     e.printStackTrace();

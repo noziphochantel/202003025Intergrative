@@ -6,6 +6,8 @@
 package producerconsumer;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.lang.model.element.Element;
 import javax.swing.text.Document;
 import javax.xml.parsers.DocumentBuilder;
@@ -75,7 +77,15 @@ public class ITStudent {
     }
     
     public int[] getCourses() {
-        return courses;
+        return courses ;
+    }
+    
+    public String getStatus()
+    {
+        if(passed)
+            return "Pass";
+        else
+            return "Fail";
     }
     
     //public void setCourses(List<Integer> courses) {
@@ -117,26 +127,51 @@ public class ITStudent {
                 ", courses=" + Arrays.toString(courses) +
                 ", marks=" + Arrays.toString(marks) +
                 ", average=" + average +
-                ", passed=" + passed +
+                ", passed=" + getStatus() +
                 '}';
     }
 
+    
     public static ITStudent fromXML(String xml) {
-        String[] parts = xml.split(" ");
+        String[] parts = xml.split("");
 
-        String name = parts[0];
+        String name = getTagValue(xml,"<name>(.*?)</name>");
         
-        int studentId = Integer.parseInt(parts[1]);
-        String programme = parts[2];
-        int[] courses = new int[parts.length - 3];
-        int[] marks = new int[parts.length - 3];
-
-        for (int i = 3; i < parts.length; i++) {
-            courses[i - 3] = Integer.parseInt(parts[i]);
-            marks[i - 3] = Integer.parseInt(parts[i + 1]);
+        int studentId = Integer.parseInt(getTagValue(xml,"<studentId>(.*?)</studentId>"));
+        String programme = getTagValue(xml,"<programme>(.*?)</programme>");
+        String crs = getTagValue(xml,"<courses>(.*?)</courses>");
+        String mrk = getTagValue(xml,"<marks>(.*?)</marks>");
+        
+        String[] c = crs.replace("[", "")
+                .replace("]", "")
+                .split(",");
+        int[] courses = new int[c.length];
+        for(int x = 0; x < courses.length; x++)
+        {
+            courses[x] = Integer.parseInt(c[x].trim());
+        }
+        
+        String[] m = mrk.replace("[", "")
+                .replace("]", "")
+                .split(",");
+        int[] marks = new int[m.length];
+        for(int x = 0; x < courses.length; x++)
+        {
+            marks[x] = Integer.parseInt(m[x].trim());
         }
 
         return new ITStudent(name, studentId, programme, courses, marks);
+    }
+    
+    private static String getTagValue(String strXML, String patt)
+    {
+        Pattern pattern = Pattern.compile(patt);// Pattern.compile("<price>(.*)</price>");
+        Matcher matcher = pattern.matcher(strXML);
+        
+        if( matcher.find() ) 
+            return matcher.group(1) ;
+        
+        return "";
     }
     
    /* public ITStudent fromXML(String xml) {
@@ -201,7 +236,7 @@ public class ITStudent {
                 "<courses>" + Arrays.toString(courses) + "</courses>" +
                 "<marks>" + Arrays.toString(marks) + "</marks>" +
                 "<average>" + average + "</average>" +
-                "<passed>" + passed + "</passed>" +
+                "<passed>" + getStatus() + "</passed>" +
                 "</student>";
     }
 }
